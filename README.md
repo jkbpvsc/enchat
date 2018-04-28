@@ -1,5 +1,7 @@
 # enchan
 
+Lightweight chatroom server using socket.io with millenium design
+
 Encryption still to be implemented
 
 ```
