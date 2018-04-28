@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express = require("express");
+const morgan = require("morgan");
+const http_1 = require("http");
+const index_1 = require("./router/index");
+const SocketIOServer = require("./socket/SocketIOServer");
+const app = express();
+const server = http_1.createServer(app);
+SocketIOServer.init(server);
+app.use(express.static('public'));
+app.use('/', index_1.default);
+app.set('view engine', 'pug');
+app.use(morgan('dev'));
+app.set('port', 3000);
+server.listen(app.get('port'));

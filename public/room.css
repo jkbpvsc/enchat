@@ -1,0 +1,45 @@
+.chat-border {
+    border: 1px solid black;
+}
+
+.chat-window {
+    height: 75%;
+    overflow-y: scroll;
+}
+
+.chat-input {
+    margin-top: 20px;
+}
+
+.chat-container {
+    padding: 20px;
+}
+
+#message {
+    width: 100%;
+    border-color: transparent !important;
+    outline: none;
+    padding-left: 5px;
+    line-height: 24px;
+    font-size: 13px;
+    font-family: monospace;
+}
+
+
+#message-submit:hover {
+    background: #eeeeee;
+}
+
+.message {
+    padding: 0 5px;
+    border-bottom: 1px solid silver;
+    font-family: monospace;
+}
+
+.message div{
+    display:inline-block;
+}
+
+.message div:last-child {
+    float: right;
+}
