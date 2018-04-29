@@ -1,20 +1,14 @@
 import { Router } from 'express'
 
-import { generateRoomID } from "../socket/SocketIOServer";
+import { roomPage, indexPage } from "../api/render";
+import { createRoom } from "../api/room";
 
 const router = Router();
 
-router.get('/', (req, res) => {
-  res.render('index');
-});
+router.get('/', indexPage);
 
-router.get('/create', (req, res) => {
-  console.log('Creating a new chat room');
-  res.redirect(`/${generateRoomID()}`);
-});
+router.get('/r', createRoom);
 
-router.get('/:room', function (req, res) {
-  res.render('room')
-});
+router.get('/r/:room', roomPage);
 
 export default router

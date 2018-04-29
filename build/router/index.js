@@ -1,16 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const SocketIOServer_1 = require("../socket/SocketIOServer");
+const render_1 = require("../api/render");
+const room_1 = require("../api/room");
 const router = express_1.Router();
-router.get('/', (req, res) => {
-    res.render('index');
-});
-router.get('/create', (req, res) => {
-    console.log('Creating a new chat room');
-    res.redirect(`/${SocketIOServer_1.generateRoomID()}`);
-});
-router.get('/:room', function (req, res) {
-    res.render('room');
-});
+router.get('/', render_1.indexPage);
+router.get('/r', room_1.createRoom);
+router.get('/r/:room', render_1.roomPage);
 exports.default = router;
