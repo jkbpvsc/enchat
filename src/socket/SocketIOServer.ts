@@ -3,12 +3,6 @@ import * as crypto from 'crypto'
 import {Socket, Server, Namespace} from "socket.io";
 import {randomBytes} from "crypto";
 import Message from './Message';
-import {message} from "gulp-typescript/release/utils";
-
-interface MetaData {
-  id: string
-  online: number
-}
 
 let io;
 const connectionPool: Array<Client> = [];

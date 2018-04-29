@@ -1,5 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+function encodeString(s) {
+    return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
 class Message {
     constructor(socketData) {
         this.message = "";
@@ -7,23 +14,13 @@ class Message {
         this.author = "";
         this._valid = false;
         this.encoded = false;
-        this.message = socketData.message;
+        this.message = encodeString(socketData.message);
         if (socketData.en_check) {
             this.en_check = socketData.en_check;
         }
     }
     get valid() {
         return this._valid;
-    }
-    encodeHTML() {
-        if (!this.encoded) {
-            this.message = this.message
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-            this.encoded = true;
-        }
     }
     validate() {
         if (this.message.length === 0) {
@@ -34,12 +31,11 @@ class Message {
             this._valid = false;
             return false;
         }
-        this.encodeHTML();
         this._valid = true;
         return this._valid;
     }
     setAuthor(author) {
-        this.author = author;
+        this.author = encodeString(author);
         this._valid = false;
     }
     render() {
