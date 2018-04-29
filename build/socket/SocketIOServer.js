@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const socketIO = require("socket.io");
 const crypto = require("crypto");
 const crypto_1 = require("crypto");
+const Message_1 = require("./Message");
 let io;
 const connectionPool = [];
 function init(server) {
@@ -24,7 +25,7 @@ function attachHandlers() {
         const con = new Client(socket, io);
         connectionPool.push(con);
         socket.on('disconnect', () => {
-            con.systemMessage(`${con.alias} disconnected`);
+            con.roomMessage(`${con.alias} disconnected`);
             removeFromPool(con);
         });
     });
@@ -57,21 +58,48 @@ class Client {
         this.socket.on('nick', this.changeAlias.bind(this));
     }
     changeAlias(alias) {
-        this.systemMessage(`${this.alias} changed nickname to ${alias}`);
+        if (!alias) {
+            return this.clientMessage('Nickname missing');
+        }
+        this.roomMessage(`${this.alias} changed nickname to ${alias}`);
         this.alias = alias;
     }
     joinRoom(data) {
         this.room = data.room;
         this.socket.join(this.room);
         this.socket.emit('meta', { connections: getRoomMembers(this.room).length });
-        this.systemMessage(`${this.alias} connected`);
+        this.roomMessage(`${this.alias} connected`);
     }
-    systemMessage(message) {
-        this.handleMessage({ message }, 'system');
+    roomMessage(message) {
+        const messageObject = new Message_1.default({ message });
+        messageObject.setAuthor(`room`);
+        messageObject.validate();
+        this.sendMessage(messageObject);
     }
-    handleMessage(data, author = this.alias) {
+    clientMessage(message) {
+        const messageObject = new Message_1.default({ message });
+        messageObject.setAuthor(`room`);
+        messageObject.validate();
+        this.sendMessage(messageObject);
+    }
+    handleMessage(socketData, author = this.alias) {
         if (this.room !== "") {
-            this.io.to(this.room).send(Object.assign({}, data, { author }));
+            const message = new Message_1.default(socketData);
+            message.setAuthor(author);
+            message.validate();
+            this.sendMessage(message);
+        }
+    }
+    sendMessage(message, scoketMessage = false) {
+        if (message.valid) {
+            let recipient = this.socket;
+            if (scoketMessage) {
+                recipient = this.socket;
+            }
+            else {
+                recipient = this.io.to(this.room);
+            }
+            recipient.send(message.render());
         }
     }
 }

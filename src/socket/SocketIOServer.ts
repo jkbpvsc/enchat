@@ -1,7 +1,9 @@
 import * as socketIO from 'socket.io'
 import * as crypto from 'crypto'
-import { Socket, Server } from "socket.io";
+import {Socket, Server, Namespace} from "socket.io";
 import {randomBytes} from "crypto";
+import Message from './Message';
+import {message} from "gulp-typescript/release/utils";
 
 interface MetaData {
   id: string
@@ -32,7 +34,7 @@ function attachHandlers(): void {
     connectionPool.push(con);
 
     socket.on('disconnect', () => {
-      con.systemMessage(`${con.alias} disconnected`);
+      con.roomMessage(`${con.alias} disconnected`);
       removeFromPool(con);
     })
   });
@@ -74,7 +76,10 @@ class Client {
   }
 
   changeAlias(alias) {
-    this.systemMessage(`${this.alias} changed nickname to ${alias}`);
+    if (!alias) {
+      return this.clientMessage('Nickname missing');
+    }
+    this.roomMessage(`${this.alias} changed nickname to ${alias}`);
     this.alias = alias;
   }
 
@@ -82,16 +87,45 @@ class Client {
     this.room = data.room;
     this.socket.join(this.room);
     this.socket.emit('meta', { connections: getRoomMembers(this.room).length });
-    this.systemMessage(`${this.alias} connected`)
+    this.roomMessage(`${this.alias} connected`)
   }
 
-  systemMessage(message: string) {
-    this.handleMessage({ message }, 'system')
+  roomMessage(message: string) {
+    const messageObject = new Message({ message });
+    messageObject.setAuthor(`room`);
+    messageObject.validate();
+
+    this.sendMessage(messageObject)
   }
 
-  handleMessage(data, author = this.alias) {
+  clientMessage(message: string) {
+    const messageObject = new Message({ message });
+    messageObject.setAuthor(`room`);
+    messageObject.validate();
+
+    this.sendMessage(messageObject)
+  }
+
+  private handleMessage(socketData, author = this.alias) {
     if (this.room !== "") {
-      this.io.to(this.room).send(Object.assign({}, data, { author }));
+      const message = new Message(socketData);
+      message.setAuthor(author);
+      message.validate();
+      this.sendMessage(message)
+    }
+  }
+
+  private sendMessage(message: Message, scoketMessage: boolean = false) {
+    type Recipient = Socket | Namespace;
+    if (message.valid) {
+      let recipient: Recipient = this.socket;
+      if (scoketMessage) {
+        recipient = this.socket;
+      } else {
+        recipient = this.io.to(this.room);
+      }
+
+      recipient.send(message.render());
     }
   }
 }
