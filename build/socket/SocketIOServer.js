@@ -70,7 +70,6 @@ class Client {
         this.handleMessage({ message }, 'system');
     }
     handleMessage(data, author = this.alias) {
-        console.log('Handling message: ' + data.message);
         if (this.room !== "") {
             this.io.to(this.room).send(Object.assign({}, data, { author }));
         }
