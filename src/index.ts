@@ -14,7 +14,7 @@ app.use(express.static('public'));
 app.use('/', indexRouter);
 app.set('view engine', 'pug');
 app.use(morgan('dev'));
-app.set('port', 3000);
+app.set('port', 80);
 
 
 server.listen(app.get('port'));
