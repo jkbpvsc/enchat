@@ -5,18 +5,22 @@ import { createServer } from 'http'
 import indexRouter from './router/index'
 import * as SocketIOServer from './socket/SocketIOServer';
 
-const PORT = process.env.PORT || 80;
+function startServer() {
+  const PORT = process.env.PORT || 5000;
+  const app = express();
+  const server = createServer(app);
 
-const app = express();
-const server = createServer(app);
-SocketIOServer.init(server);
+  console.log(`Starting server on port ${PORT}`);
 
-app.use(express.static('public'));
+  SocketIOServer.init(server);
+  app.use(express.static('public'));
 
-app.use('/', indexRouter);
-app.set('view engine', 'pug');
-app.use(morgan('dev'));
+  app.use('/', indexRouter);
+  app.set('view engine', 'pug');
+  app.use(morgan('dev'));
 
-app.set('port', PORT);
+  app.set('port', PORT);
+  server.listen(PORT, () => console.log('Server running on port: ' + PORT));
+}
 
-server.listen(app.get('port'), () => console.log('App running on port: ' + PORT));
+startServer();
