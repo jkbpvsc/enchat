@@ -13,11 +13,8 @@ class Message {
         this.en_check = "";
         this.author = "";
         this._valid = false;
-        this.encoded = false;
         this.message = encodeString(socketData.message);
-        if (socketData.en_check) {
-            this.en_check = socketData.en_check;
-        }
+        this.en_check = socketData.en_check || '0,0';
     }
     get valid() {
         return this._valid;
@@ -41,7 +38,8 @@ class Message {
     render() {
         return {
             message: this.message,
-            author: this.author
+            author: this.author,
+            en_check: this.en_check
         };
     }
 }

@@ -16,14 +16,11 @@ export default class Message {
   private en_check: string = "";
   private author: string = "";
   private _valid: boolean = false;
-  private encoded: boolean = false;
 
   constructor(socketData: SocketMessage) {
     this.message = encodeString(socketData.message);
 
-    if (socketData.en_check) {
-      this.en_check = socketData.en_check;
-    }
+    this.en_check = socketData.en_check || '0,0'
   }
 
   get valid() {
@@ -53,7 +50,8 @@ export default class Message {
   render() {
     return {
       message: this.message,
-      author: this.author
+      author: this.author,
+      en_check: this.en_check
     }
   }
 }
